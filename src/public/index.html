@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Emit to view</title>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <h1>Transmiting online</h1>
+    <button id="btn">Emit</button>
+    <video src="" id="video" style="width: 800px; height: 600px;" 
+        autoplay="true">
+    </video>
+    <canvas id="preview">Este</canvas>
+    <div class="status"></div>
+
+    <script>
+        var canvas = document.querySelector('#preview');
+        var ctx = canvas.getContext('2d');
+
+        var btn = document.querySelector('#btn');
+
+        canvas.width = 512;
+        canvas.height = 384;
+
+        ctx.width = canvas.width;
+        ctx.height = canvas.height;
+
+        var video = document.querySelector('#video');
+
+        var socket = io();
+
+        function publicMessage(msg){
+            document.querySelector(".status").innerText = msg;
+        }
+
+        function loadCam (stream){
+            video.srcObject = stream;
+            publicMessage('Cam ready!!');
+        }
+
+        function errCam(){
+            publicMessage('cam Fail!! :(');
+        }
+
+        function verVideo(html, context){
+            ctx.drawImage(video, 0, 0, ctx.width, ctx.height);
+            socket.emit('stream', canvas.toDataURL('image/webp'));
+        }
+
+        btn.addEventListener('click', () => {
+            navigator.getUserMedia = (navigator.getUserMedia ||
+                navigator.webkitGetUserMedia || 
+                navigator.mozGetUserMedia ||
+                navigator.mediaDevices.getUserMedia ||
+                navigator.msgGetUserMedia);
+            
+            if (navigator.getUserMedia){
+                navigator.getUserMedia({video:true}, loadCam, errCam);
+            }
+
+            var interval = setInterval ( () =>{
+                verVideo(video. ctx);
+            }, 30);
+        });
+    </script>
+</body>
+</html>
